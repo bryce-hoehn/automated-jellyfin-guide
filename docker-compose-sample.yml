@@ -55,7 +55,7 @@ services:
       volumes:
         - ./qbittorrent:/config
         - /path/to/qbittorrent-downloads:/downloads
-      network_mode: service:glutun
+      network_mode: service:gluetun
       restart: unless-stopped
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:develop
@@ -66,7 +66,7 @@ services:
       - TZ=America/New_York
     volumes:
       - ./prowlarr:/config
-    network_mode: service:glutun
+    network_mode: service:gluetun
     ports:
       - 9696:9696
     restart: unless-stopped
