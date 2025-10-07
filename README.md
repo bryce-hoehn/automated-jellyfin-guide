@@ -19,7 +19,7 @@ That said, Jellyfin lags behind Plex in a few features and especially in client 
 
 **qBittorrent** is a torrent client. Transmission and Deluge are also popular choices but I chose qBittorrent because you can easily configure it to only operate over the VPN connection.
 
-**Glutun** is a VPN running in docker. This will allow you to connect the qBittorrent container to your VPN without having to put your entire system behind it
+**Gluetun** is a VPN running in docker. This will allow you to connect the qBittorrent container to your VPN without having to put your entire system behind it
 
 **Prowlarr** is a tool that Sonarr and Radarr use to search indexers and trackers for torrents
 
@@ -94,9 +94,9 @@ Make sure those PUID and GUID match the ID for your user and group. You can find
 
 # VPN Docker Config
 
-We will use Glutun to setup your VPN connection in a Docker container. This way, services that rely on the VPN such as qbittorrent can access it while the host and public facing services do not.
+We will use Gluetun to setup your VPN connection in a Docker container. This way, services that rely on the VPN such as qbittorrent can access it while the host and public facing services do not.
 
-The exact configuration will vary based on which VPN provider you use. I recommend one that allows for port forwarding, as it will allow you to seed more reliably. This may not be important if you only use public trackers, but most private trackers are strict about maintaining a good seeding ratio. I will leave this shell for you to fill in with your VPN info. For more information on how to set it up, please see the [Glutun documentation](https://github.com/qdm12/gluetun).
+The exact configuration will vary based on which VPN provider you use. I recommend one that allows for port forwarding, as it will allow you to seed more reliably. This may not be important if you only use public trackers, but most private trackers are strict about maintaining a good seeding ratio. I will leave this shell for you to fill in with your VPN info. For more information on how to set it up, please see the [Gluetun documentation](https://github.com/qdm12/gluetun).
 
 ```
   gluetun:
@@ -115,7 +115,7 @@ The exact configuration will vary based on which VPN provider you use. I recomme
       - 8080:8080 # qbittorrent
       - 9696:9696 # prowlarr
     volumes:
-      - ./glutun:/gluetun
+      - ./gluetun:/gluetun
     environment:
       # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
       - PUID=1000
@@ -148,13 +148,13 @@ qbittorrent:
     volumes:
       - ./qbittorrent:/config
       - /path/to/qbittorrent-downloads:/downloads
-    network_mode: service:glutun
+    network_mode: service:gluetun
     restart: unless-stopped
  ```
 
 Replace /path/to/qbittorrent-downloads with the directory you would like qBittorrent to store downloads.
 
-We added network_mode: service:glutun here so that all qbittorrent traffic gets routed through the VPN container.
+We added network_mode: service:gluetun here so that all qbittorrent traffic gets routed through the VPN container.
 
 Notice that we did not add the ports: section. When routing network traffic through another container, the ports have to be defined in the VPN container instead.
 
@@ -171,7 +171,7 @@ Notice that we did not add the ports: section. When routing network traffic thro
       - TZ=America/New_York
     volumes:
       - ./prowlarr:/config
-    network_mode: service:glutun
+    network_mode: service:gluetun
     ports:
       - 9696:9696
     restart: unless-stopped
