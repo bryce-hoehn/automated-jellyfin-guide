@@ -27,7 +27,7 @@ services:
       - 8080:8080 # qbittorrent
       - 9696:9696 # prowlarr
     volumes:
-      - ./glutun:/gluetun
+      - ./gluetun:/gluetun
     environment:
       # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
       - PUID=1000
