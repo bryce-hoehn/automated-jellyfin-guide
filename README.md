@@ -12,7 +12,7 @@ Here's the stack we'll be using. There will be a section describing the installa
 
 1) The server runs entirely on your local network whereas Plex servers use a proprietary authentication system.
 2) In recent years Plex has increasingly incorporated annoying features such as their free built in streaming service. Some may find this useful, but personally I find it to be too much clutter.
-3) There is speculation that Plex may be [cracking down](https://cordcuttersnews.com/plex-is-cracking-down-on-pirated-content/) on pirated content.
+3) Plex has moved existing features behind [paywalls](https://www.pcworld.com/article/2642674/plexs-lifetime-subscription-plan-is-getting-a-massive-price-hike.html).
 4) Jellyfin is open source, and all of it's features are completely free. No need for a Plex pass.
 
 That said, Jellyfin lags behind Plex in a few features and especially in client support. If you decide to stick with Plex, most of this guide will still work, you'll just need to swap out Jellyfin, switch out Jellyseer and Jfa-Go for Plex equivilents, and update the connections to Sonnar/Radarr/etc.
@@ -22,6 +22,8 @@ That said, Jellyfin lags behind Plex in a few features and especially in client 
 **Gluetun** is a VPN running in docker. This will allow you to connect the qBittorrent container to your VPN without having to put your entire system behind it
 
 **Prowlarr** is a tool that Sonarr and Radarr use to search indexers and trackers for torrents
+
+**FlareSolverr** can optionally be installed alongside Prowlarr to bypass cloudflare protections. Required for certain indexors (ex. 1337).
 
 **Sonarr** is a tool for automating and managing your TV library. It automates the process of searching for torrents, downloading them then "moving" them to your library. It also checks RSS feeds to automatically download new shows as soon as they're uploaded! 
 
@@ -33,7 +35,11 @@ The following are additional services I recommend. Since the scope of this guide
 
 **[jfa-go](https://github.com/hrfee/jfa-go)** is a user manager for Jellyfin that allows your users to sign up via an invite code and reset their passwords
 
+**Update 10/25/25** [Wizzarr](https://github.com/Wizarrrr/wizarr) seem like a more polished implementation and it supports multiple services besides Jellyfin.
+
 **[Jellyseerr](https://github.com/Fallenbagel/jellyseerr)** is an application for managing requests for your media library. It is a fork of Overseerr built to bring support for Jellyfin servers!
+
+**Update 10/25/25** Jellyseerr is in the process of merging with Overseerr. Unclear how this will effect current Jellyseerr users, but you can track the progress [here](https://github.com/seerr-team/seerr).
 
 **[Homepage](https://github.com/gethomepage/homepage)** is a dashboard for keeping track all of these web services
 
@@ -43,16 +49,13 @@ The following are additional services I recommend. Since the scope of this guide
 
 **[nginx-proxy-manager](https://nginxproxymanager.com/guide/#quick-setup)** is a simple reverse proxy service for making Jellyfin accessible outside of your local network
 
+**Update 10/25/25** I've personally switched from nginx-proxy-manager to [Caddy](https://caddyserver.com/). But this is strictly a personal preference.
+
 # Installing Docker
 
 Installation steps will vary based on distro. I recommend following the instructions in the [Docker documentation](https://docs.docker.com/engine/install/).
 
-You will also need to install Docker Compose. Fortunantely these instructions are the same for most distros:
-
-```
-sudo curl -SL https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
+You will also need to install Docker Compose. Again I recommend following the official [Docker documentation](https://docs.docker.com/compose/install).
 
 I like to keep my configs in one easy place, so let’s create a folder to hold our docker container configs and create our docker-compose.yml file
 
@@ -158,7 +161,6 @@ We added network_mode: service:gluetun here so that all qbittorrent traffic gets
 
 Notice that we did not add the ports: section. When routing network traffic through another container, the ports have to be defined in the VPN container instead.
 
-
 # Prowlarr Docker Config
 
 ```
@@ -179,6 +181,21 @@ Notice that we did not add the ports: section. When routing network traffic thro
 
 This is super basic and just boots your Prowlarr service on port 9696. Doesn’t need much else!
 
+# Flaresolverr
+```
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    ports:
+      - 8191:8191
+    volumes:
+      - ./flaresolver:/config
+    restart: unless-stopped
+```
 
 # Sonarr & Radarr Docker Config
 
@@ -222,7 +239,7 @@ Run this command to boot up all your services! Remember to go back and update yo
 
 ```
 cd ~/docker
-docker-compose up -d
+docker compose up -d
 ```
 
 You now have these services running locally. Go to their web UI’s and configure everything.
@@ -265,11 +282,13 @@ This will ensure that qBittorrent only downloads over your VPN connection.
 
 ### Change default login (Optional)
 
-By default the login to the web UI is just "admin" "adminadmin". Personally I don't find it worth changing since qBittorrent is only accessible through my home network but if you plan on making it available remotely you might want to change it.
+By default the login to the web UI is just "admin" "adminadmin". Personally I don't find it worth changing since qBittorrent is only accessible through my home network. I wouldn't recommend making it publically available unless you have a good reason, but if you do you should at least change the default login.
 
-1. Navigate to Tools > Options
-2. Under the "Downloads" tab scroll down to "Authentication"
+1. Navigate to Tools > Options > WebUI > Authentication
 3. Enter a secure username and password.
+
+## Update 10/25/25:
+Newer installs of qBittorrent reportedly generate a random password on install. This password can be found by running `docker logs qbittorrent`.
 
 ## Prowlarr
 
