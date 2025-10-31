@@ -117,6 +117,7 @@ The exact configuration will vary based on which VPN provider you use. I recomme
       - 8388:8388/udp # Shadowsocks
       - 8080:8080 # qbittorrent
       - 9696:9696 # prowlarr
+      - 8191:8191 # flaresolverr
     volumes:
       - ./gluetun:/gluetun
     environment:
@@ -190,8 +191,7 @@ This is super basic and just boots your Prowlarr service on port 9696. Doesn’t
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
-    ports:
-      - 8191:8191
+    network_mode: service:gluetun
     volumes:
       - ./flaresolver:/config
     restart: unless-stopped
