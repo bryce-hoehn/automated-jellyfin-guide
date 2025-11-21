@@ -130,8 +130,8 @@ The exact configuration will vary based on which VPN provider you use. I recomme
       - OPENVPN_USER=
       - OPENVPN_PASSWORD=
       # Wireguard:
-      # - WIREGUARD_PRIVATE_KEY=wOEI9rqqbDwnN8/Bpp22sVz48T71vJ4fYmFWujulwUU=
-      # - WIREGUARD_ADDRESSES=10.64.222.21/32
+      # - WIREGUARD_PRIVATE_KEY={YOUR PRIVATE KEY}
+      # - WIREGUARD_ADDRESSES={YOUR ADDRESSES}
       # Timezone for accurate log times
       - TZ=
       # Server list updater
