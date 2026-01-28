@@ -67,8 +67,6 @@ services:
     volumes:
       - ./prowlarr:/config
     network_mode: service:gluetun
-    ports:
-      - 9696:9696
     restart: unless-stopped
   sonarr:
     image: ghcr.io/linuxserver/sonarr
