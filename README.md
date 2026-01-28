@@ -175,8 +175,6 @@ Notice that we did not add the ports: section. When routing network traffic thro
     volumes:
       - ./prowlarr:/config
     network_mode: service:gluetun
-    ports:
-      - 9696:9696
     restart: unless-stopped
 ```
 
