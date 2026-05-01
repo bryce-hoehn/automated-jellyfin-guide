@@ -15,7 +15,7 @@ Here's the stack we'll be using. There will be a section describing the installa
 3) Plex has moved existing features behind [paywalls](https://www.pcworld.com/article/2642674/plexs-lifetime-subscription-plan-is-getting-a-massive-price-hike.html).
 4) Jellyfin is open source, and all of it's features are completely free. No need for a Plex pass.
 
-That said, Jellyfin lags behind Plex in a few features and especially in client support. If you decide to stick with Plex, most of this guide will still work, you'll just need to swap out Jellyfin, switch out Jellyseer and Jfa-Go for Plex equivilents, and update the connections to Sonnar/Radarr/etc.
+That said, Jellyfin lags behind Plex in a few features and especially in client support. If you decide to stick with Plex, most of this guide will still work, you'll just need to swap out Jellyfin and update the connections to Sonnar/Radarr/etc.
 
 **qBittorrent** is a torrent client. Transmission and Deluge are also popular choices but I chose qBittorrent because you can easily configure it to only operate over the VPN connection.
 
@@ -33,29 +33,33 @@ That said, Jellyfin lags behind Plex in a few features and especially in client 
 
 The following are additional services I recommend. Since the scope of this guide is mainly about just getting started for new users, I'm not going to go much into how to set them up. However the setup process will generally be very similar.
 
+### User Management
 **[jfa-go](https://github.com/hrfee/jfa-go)** is a user manager for Jellyfin that allows your users to sign up via an invite code and reset their passwords
 
-**Update 10/25/25** [Wizzarr](https://github.com/Wizarrrr/wizarr) seem like a more polished implementation and it supports multiple services besides Jellyfin.
+**[Wizzarr](https://github.com/Wizarrrr/wizarr)** an alternative to jfa-go. Supports Plex, Jellyfin, Emby, Audiobookshelf, Romm, Komga and Kavita. Seems to be in more active development.
 
-**[Jellyseerr](https://github.com/Fallenbagel/jellyseerr)** is an application for managing requests for your media library. It is a fork of Overseerr built to bring support for Jellyfin servers!
+### Request system
+**[Seerr](https://github.com/seerr-team/seerr)** is an application for managing requests for your media library.
 
-**Update 10/25/25** Jellyseerr is in the process of merging with Overseerr. Unclear how this will effect current Jellyseerr users, but you can track the progress [here](https://github.com/seerr-team/seerr).
-
+### Dashboard
 **[Homepage](https://github.com/gethomepage/homepage)** is a dashboard for keeping track all of these web services
 
+### Subtitles
 **[Bazarr](https://wiki.bazarr.media/Getting-Started/Setup-Guide/)** is a tool for Sonarr and Radarr to download subtitles for your content
 
+### Media management
 **[Unmanic](https://docs.unmanic.app/)** is a great tool for optimising media files. For example, you can use it to remove unneccessary subtitles/audio tracks and transcode media to your desired format.
 
-**[nginx-proxy-manager](https://nginxproxymanager.com/guide/#quick-setup)** is a simple reverse proxy service for making Jellyfin accessible outside of your local network
+### Reverse Proxies
+I've personally used both of these reverse proxies at different points. Nowadays I prefer Caddy for a declarative file based approach, but if you prefer a web-ui nginx-proxy-manager is also a great option.
 
-**Update 10/25/25** I've personally switched from nginx-proxy-manager to [Caddy](https://caddyserver.com/). But this is strictly a personal preference.
+**[nginx-proxy-manager](https://nginxproxymanager.com/guide/#quick-setup)** is an easy to use web-ui for setting up reverse proxies.
+
+**[Caddy](https://caddyserver.com/)** another popular, easy to use reverse proxy server. Does not have a web-ui but is easy to configure in a Caddyfile.
 
 # Installing Docker
 
 Installation steps will vary based on distro. I recommend following the instructions in the [Docker documentation](https://docs.docker.com/engine/install/).
-
-You will also need to install Docker Compose. Again I recommend following the official [Docker documentation](https://docs.docker.com/compose/install).
 
 I like to keep my configs in one easy place, so let’s create a folder to hold our docker container configs and create our docker-compose.yml file
 
@@ -99,7 +103,7 @@ Make sure those PUID and GUID match the ID for your user and group. You can find
 
 We will use Gluetun to setup your VPN connection in a Docker container. This way, services that rely on the VPN such as qbittorrent can access it while the host and public facing services do not.
 
-The exact configuration will vary based on which VPN provider you use. I recommend one that allows for port forwarding, as it will allow you to seed more reliably. This may not be important if you only use public trackers, but most private trackers are strict about maintaining a good seeding ratio. I will leave this shell for you to fill in with your VPN info. For more information on how to set it up, please see the [Gluetun documentation](https://github.com/qdm12/gluetun).
+The exact configuration will vary based on which VPN provider you use. I recommend one that allows for port forwarding, as it will allow you to seed more reliably. For more information on how to set it up, please see the [Gluetun documentation](https://github.com/qdm12/gluetun).
 
 ```
   gluetun:
@@ -178,7 +182,7 @@ Notice that we did not add the ports: section. When routing network traffic thro
     restart: unless-stopped
 ```
 
-This is super basic and just boots your Prowlarr service on port 9696. Doesn’t need much else!
+This is super basic and just boots your Prowlarr service on port 9696.
 
 # Flaresolverr
 ```
@@ -280,13 +284,10 @@ This will ensure that qBittorrent only downloads over your VPN connection.
 
 ### Change default login (Optional)
 
-By default the login to the web UI is just "admin" "adminadmin". Personally I don't find it worth changing since qBittorrent is only accessible through my home network. I wouldn't recommend making it publically available unless you have a good reason, but if you do you should at least change the default login.
+On startup qBittorrent will generate a random password. You can find it by running `docker logs qbittorrent`, and can then change it in the webui:
 
 1. Navigate to Tools > Options > WebUI > Authentication
-3. Enter a secure username and password.
-
-## Update 10/25/25:
-Newer installs of qBittorrent reportedly generate a random password on install. This password can be found by running `docker logs qbittorrent`.
+2. Enter a secure username and password.
 
 ## Prowlarr
 
