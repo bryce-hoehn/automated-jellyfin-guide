@@ -266,6 +266,13 @@ See [documentation](https://jellyfin.org/docs/general/quick-start.html) for more
 
 ## qBittorrent
 
+### Change default login
+
+On startup qBittorrent will generate a random password. You can find it by running `docker logs qbittorrent`, and can then change it in the webui:
+
+1. Navigate to Tools > Options > WebUI > Authentication
+2. Enter a secure username and password.
+
 ### Set Download Directory
 
 1. Navigate to qBittorrent Web UI at http://localhost:8080
@@ -281,13 +288,6 @@ This will ensure that qBittorrent only downloads over your VPN connection.
 2. Click on Tool > Options
 3. Go to the Advanced tab
 4. Change Network interface from Any to the interface corresponding to your VPN (probably something like tun0)
-
-### Change default login (Optional)
-
-On startup qBittorrent will generate a random password. You can find it by running `docker logs qbittorrent`, and can then change it in the webui:
-
-1. Navigate to Tools > Options > WebUI > Authentication
-2. Enter a secure username and password.
 
 ## Prowlarr
 
